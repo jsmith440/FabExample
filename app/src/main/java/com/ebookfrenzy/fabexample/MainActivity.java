@@ -1,15 +1,50 @@
 package com.ebookfrenzy.fabexample;
 
 import android.os.Bundle;
+
+import android.view.View.OnClickListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.Locale;
+import java.util.ArrayList;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+
+
 public class MainActivity extends AppCompatActivity {
+
+  ArrayList<String> listItems = new ArrayList<String>();
+  ArrayAdapter<String> adapter;
+  private ListView myListView;
+
+  private void addListItem() {
+    SimpleDateFormat dateFormat =
+        new SimpleDateFormat("HH:mm:ss MM/dd/yyyy",
+            locale.US);
+    listItems.add(dateFormat.format(new Date()));
+    adapter.notifyDataSetChanged();
+  }
+
+  View.OnClickListener undoOnClickListener = new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+      listItems.remove(listItems.size() -1);
+      adapter.notifyDataSetChanged();
+      Snackbar.make(view, "Item removed", Snackbar.LENGTH_LONG)
+          .setAction("Action", null).show();
+    }
+  };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -18,12 +53,22 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
+    myListView = findViewById(R.id, listView);
+
+    adapter = new ArrayAdapter<String>(this,
+        android.R.layout_simple_list_item_1,
+        listItems);
+    myListView.setAdapter(adapter);
+
     FloatingActionButton fab = findViewById(R.id.fab);
-    fab.setOnClickListener(new View.OnClickListener() {
+
+    fab.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View view) {
-        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-            .setAction("Action", null).show();
+        addListItem();
+        Snackbar.make(view, "Item added to list",
+            Snackbar.LENGTH_LONG)
+            .setAction("Undo", undoOnClickListener).show();
       }
     });
   }
